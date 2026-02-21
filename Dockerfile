@@ -54,9 +54,10 @@ RUN dotnet publish Jellyfin.Server \
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 3: Final image
-# ASP.NET runtime image includes the .NET runtime so we don't need to
-# install it manually. Omits hardware-acceleration packages (Intel OpenCL,
-# Rockchip Mali) and jellyfin-ffmpeg since this image is for functional testing.
+# ASP.NET runtime image (Ubuntu 24.04 Noble) includes the .NET runtime.
+# jellyfin-ffmpeg is installed from the official Jellyfin apt repository.
+# Hardware acceleration drivers (Intel OpenCL, Rockchip Mali) are omitted
+# as this image is intended for functional testing.
 # ─────────────────────────────────────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}
 
@@ -75,15 +76,26 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     JELLYFIN_WEB_DIR="/jellyfin/jellyfin-web" \
     JELLYFIN_FFMPEG="/usr/lib/jellyfin-ffmpeg/ffmpeg"
 
+# Install base dependencies, then add the Jellyfin apt repo and install
+# jellyfin-ffmpeg from it. Using the same repo/codename as the official image.
 RUN apt-get update \
  && apt-get install --no-install-recommends --no-install-suggests --yes \
     ca-certificates \
     curl \
+    gnupg \
     locales \
     libfontconfig1 \
     libfreetype6 \
  && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
  && locale-gen \
+ # Add Jellyfin apt repository (targeting Ubuntu 24.04 Noble — matches base image)
+ && curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key \
+      | gpg --dearmor -o /etc/apt/trusted.gpg.d/jellyfin.gpg \
+ && echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/ubuntu noble main" \
+      > /etc/apt/sources.list.d/jellyfin.list \
+ && apt-get update \
+ && apt-get install --no-install-recommends --no-install-suggests --yes \
+    jellyfin-ffmpeg7 \
  && apt-get clean autoclean --yes \
  && apt-get autoremove --yes \
  && rm -rf /var/cache/apt/archives* /var/lib/apt/lists/*

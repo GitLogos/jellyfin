@@ -29,7 +29,6 @@ public class SsoProxyAuthenticationHandler : AuthenticationHandler<Authenticatio
     private readonly ISsoJwtValidator _jwtValidator;
     private readonly IServerConfigurationManager _config;
     private readonly IUserManager _userManager;
-    private readonly ISessionManager _sessionManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SsoProxyAuthenticationHandler"/> class.

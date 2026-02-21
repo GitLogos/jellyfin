@@ -288,4 +288,77 @@ public class ServerConfiguration : BaseApplicationConfiguration
     /// Gets or sets a value indicating whether old authorization methods are allowed.
     /// </summary>
     public bool EnableLegacyAuthorization { get; set; }
+
+    // ─── SSO Integration (Phase 2) ────────────────────────────────────────────
+
+    /// <summary>
+    /// Gets or sets a value indicating whether SSO via upstream proxy JWT is enabled.
+    /// When enabled, a valid proxy-injected JWT (e.g. CF-Access-Jwt-Assertion) will be
+    /// accepted as authentication, bypassing the local credential check.
+    /// Local username/password auth remains available as a fallback.
+    /// </summary>
+    public bool EnableSso { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the SSO provider type.
+    /// Supported values: "CloudflareAccess", "GenericOidc".
+    /// </summary>
+    public string SsoProviderType { get; set; } = "CloudflareAccess";
+
+    /// <summary>
+    /// Gets or sets the OIDC issuer URL used for JWKS discovery and JWT validation.
+    /// For Cloudflare Access: https://&lt;team&gt;.cloudflareaccess.com
+    /// For generic OIDC: the base URL with /.well-known/openid-configuration appended automatically.
+    /// </summary>
+    public string SsoIssuer { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the expected JWT audience claim value.
+    /// For Cloudflare Access: the Application AUD tag (a SHA256 hex string).
+    /// For generic OIDC: the client_id.
+    /// </summary>
+    public string SsoAudience { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the HTTP request header that contains the proxy-injected JWT.
+    /// Default: "CF-Access-Jwt-Assertion" (Cloudflare Access).
+    /// For Bearer-style flows use "Authorization" and strip the "Bearer " prefix.
+    /// </summary>
+    public string SsoJwtHeaderName { get; set; } = "CF-Access-Jwt-Assertion";
+
+    /// <summary>
+    /// Gets or sets the JWT claim name used to resolve a Jellyfin username.
+    /// Default: "email". Alternative: "sub" or "preferred_username".
+    /// </summary>
+    public string SsoUsernameClaim { get; set; } = "email";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether Jellyfin should automatically create
+    /// a local user account on first SSO login when no matching user is found.
+    /// Disabled by default — requires an admin to pre-create user accounts.
+    /// </summary>
+    public bool SsoAutoProvisionUsers { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the RFC 8628 Device Authorization Grant
+    /// (TV / limited-input flow) is enabled. Requires <see cref="SsoOidcDeviceEndpoint"/>.
+    /// </summary>
+    public bool SsoDeviceFlowEnabled { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the IdP Device Authorization endpoint URL (RFC 8628 §3.1).
+    /// Example: https://idp.example.com/oauth2/device/authorize.
+    /// </summary>
+    public string SsoOidcDeviceEndpoint { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the IdP token endpoint URL used for Device Flow token polling.
+    /// Example: https://idp.example.com/oauth2/token.
+    /// </summary>
+    public string SsoOidcTokenEndpoint { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the OIDC Client ID used for the Device Authorization Grant flow.
+    /// </summary>
+    public string SsoOidcClientId { get; set; } = string.Empty;
 }

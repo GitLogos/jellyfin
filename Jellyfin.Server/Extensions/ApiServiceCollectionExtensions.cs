@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Security.Claims;
 using Emby.Server.Implementations;
 using Jellyfin.Api.Auth;
+using Jellyfin.Server.Implementations.Sso;
+using MediaBrowser.Controller.Sso;
 using Jellyfin.Api.Auth.AnonymousLanAccessPolicy;
 using Jellyfin.Api.Auth.DefaultAuthorizationPolicy;
 using Jellyfin.Api.Auth.FirstTimeSetupPolicy;
@@ -66,7 +68,9 @@ namespace Jellyfin.Server.Extensions
             return serviceCollection.AddAuthorizationCore(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(AuthenticationSchemes.CustomAuthentication)
+                    .AddAuthenticationSchemes(
+                        AuthenticationSchemes.CustomAuthentication,
+                        AuthenticationSchemes.SsoAuthentication)
                     .AddRequirements(new DefaultAuthorizationRequirement())
                     .Build();
 
@@ -100,8 +104,14 @@ namespace Jellyfin.Server.Extensions
         /// <returns>The updated service collection.</returns>
         public static AuthenticationBuilder AddCustomAuthentication(this IServiceCollection serviceCollection)
         {
+            // Register the SSO JWT validator singleton before setting up auth schemes
+            serviceCollection.AddSingleton<ISsoJwtValidator, JwksJwtValidator>();
+
             return serviceCollection.AddAuthentication(AuthenticationSchemes.CustomAuthentication)
-                .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(AuthenticationSchemes.CustomAuthentication, null);
+                .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>(
+                    AuthenticationSchemes.CustomAuthentication, null)
+                .AddScheme<AuthenticationSchemeOptions, SsoProxyAuthenticationHandler>(
+                    AuthenticationSchemes.SsoAuthentication, null);
         }
 
         /// <summary>

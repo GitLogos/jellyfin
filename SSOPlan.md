@@ -196,7 +196,7 @@ Start with **Option A** as it requires fewer changes to the Jellyfin core and le
 
 ## 3 — Step-by-Step Implementation Plan
 
-### Phase 2.1 — Foundation: Feature Flags & Config
+### [COMPLETED] Phase 2.1 — Foundation: Feature Flags & Config
 
 #### 3.1.1 Add SSO config to `ServerConfiguration`
 
@@ -280,7 +280,7 @@ JELLYFIN_SSO_CLIENT_ID=
 
 ---
 
-### Phase 2.2 — Proxy Header Trust
+### [COMPLETED] Phase 2.2 — Proxy Header Trust
 
 #### 3.2.1 Extend `KnownProxies` to include Cloudflare IP ranges
 
@@ -292,7 +292,7 @@ Document the Cloudflare IP ranges in the `.env.sample` and README.
 
 ---
 
-### Phase 2.3 — JWKS-based JWT Validator Service
+### [COMPLETED] Phase 2.3 — JWKS-based JWT Validator Service
 
 #### 3.3.1 Create `ISsoJwtValidator` interface
 
@@ -425,7 +425,7 @@ Additional NuGet:
 
 ---
 
-### Phase 2.4 — SSO Authentication Handler
+### [COMPLETED] Phase 2.4 — SSO Authentication Handler
 
 #### 3.4.1 Create `SsoAuthenticationHandler`
 
@@ -583,7 +583,7 @@ public const string SsoAuthentication = "Sso";
 
 ---
 
-### Phase 2.5 — Register SSO Handler in DI
+### [COMPLETED] Phase 2.5 — Register SSO Handler in DI
 
 **File:** `Jellyfin.Server/Extensions/ApiServiceCollectionExtensions.cs`
 
@@ -622,7 +622,7 @@ services.AddSingleton<ISsoJwtValidator, JwksJwtValidator>();
 
 ---
 
-### Phase 2.6 — Transparent SSO Endpoint for Web Client
+### [COMPLETED] Phase 2.6 — Transparent SSO Endpoint for Web Client
 
 The web client currently always redirects to a manual login page. To enable transparent SSO, add a lightweight endpoint that:
 
@@ -656,7 +656,7 @@ public class SsoController : BaseJellyfinApiController
 
 ---
 
-### Phase 2.7 — Device Authorization Grant (TV Apps)
+### [COMPLETED] Phase 2.7 — Device Authorization Grant (TV Apps)
 
 For TV apps (Roku, Apple TV, Android TV, etc.) with limited input:
 
